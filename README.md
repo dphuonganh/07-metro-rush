@@ -81,6 +81,8 @@ https://delhimetrorail.info/delhi-metro-stations
 
 :page_facing_up: [delhi-metro-stations](/delhi-metro-stations)
 
+![](https://delhimetrorail.info/Images/delhimetro-map_eng.jpg)
+
 ## Evaluation
 
 For the core part of the project, you're required moving at least 30 trains at a time from start station to end station without error or hanging your machine (maximum calculating time is 2 min)
