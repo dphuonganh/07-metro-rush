@@ -55,42 +55,23 @@ class node:
     def __eq__(self, other):
         return self.position == other.position
 
+class find_all_path(Metro):
+    def find_index(self, line, position):
+        for x, y in enumerate(self.metro[line]):
+            if y.name == self.metro[position[0]][position[1]].name:
+                return x
 
-def find_index(metro, line, position):
-    for x, y in enumerate(metro[line]):
-        if y.name == metro[position[0]][position[1]].name:
-            return x
-
-
-def check_node_anoline(metro, cur_node, open_list):
-    try:
-        print(cur_node.position)
-        if metro[cur_node.position[0]][cur_node.position[1]].line:
-            ano_line = metro[cur_node.position[0]][cur_node.position[1]].line
-            # print(ano_line)
-            index = find_index(metro, ano_line, cur_node.position)
-            # print(index)
-            # print(cur_node.position)
-            # quit()
-            open_list.append(node([ano_line, index], 'a', cur_node))
-            return True
-    except Exception:
-        return False
-
-
-def bfs(metro, start, end):
-    open_list = [node(start, 'a', None)]
-    while open_list:
-        current_node = open_list.pop(0)
-        if current_node.position == end:
-            path = []
-            current = current_node
-            while current is not None:
-                path.append(current.position)
-                current = current.parent
-            return path[::-1]
-
-        check_node_anoline(metro, current_node, open_list)
+    def check_node_anoline(self, cur_node, open_list):
+        try:
+            if self.metro[cur_node.position[0]][cur_node.position[1]].line:
+                ano_line = self.metro[cur_node.position[0]][cur_node.position[1]].line
+                index = self.find_index(ano_line, cur_node.position)
+                open_list.append(node([ano_line, index], 'a', cur_node))
+                return True
+        except Exception:
+            return False
+    
+    def check_node_left(self, current_node, open_list):
         try:
             if current_node.position[1] > 0 and current_node.run in ['a', 'l']:
                 new_position = current_node.position.copy()
@@ -98,25 +79,36 @@ def bfs(metro, start, end):
                 open_list.append(node(new_position, 'l', current_node))
         except TypeError:
             pass
-        
+    
+    def check_node_right(self, current_node, open_list):
         try:
-            if current_node.position[1] < len(metro[current_node.position[0]]) - 1 and current_node.run in ['a', 'r']:
+            if current_node.position[1] < len(self.metro[current_node.position[0]]) - 1 and current_node.run in ['a', 'r']:
                 new_position = current_node.position.copy()
                 new_position[1] += 1
                 open_list.append(node(new_position, 'r', current_node))
         except TypeError:
             pass
 
+    def bfs(self):
+        open_list = [node(self.start, 'a', None)]
+        while open_list:
+            current_node = open_list.pop(0)
+            if current_node.position == self.end:
+                path = []
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                return path[::-1]
+
+            self.check_node_anoline(current_node, open_list)
+            self.check_node_left(current_node, open_list)
+            self.check_node_right(current_node, open_list)
+
 
 def main():
-    graph = Metro('delhi-metro-stations')
-    # for x in graph.metro.values():
-    #     for y in x:
-    #         print(y.name, 234, y.line, 123)
-    # print(graph.start)
-    # print(graph.end)
-    # print(graph.trains)
-    print(bfs(graph.metro, graph.start, graph.end))
+    print(*find_all_path('delhi-metro-stations').bfs(), sep=' -> ')
+
 
 if __name__ == '__main__':
     main()
