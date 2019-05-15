@@ -60,14 +60,17 @@ class find_all_path(Metro):
         for x, y in enumerate(self.metro[line]):
             if y.name == self.metro[position[0]][position[1]].name:
                 return x
+        raise ValueError()
 
     def check_node_anoline(self, cur_node, open_list):
         try:
             if self.metro[cur_node.position[0]][cur_node.position[1]].line:
                 ano_line = self.metro[cur_node.position[0]][cur_node.position[1]].line
+                if ano_line in self.clo_line and ano_line != self.end[0]:
+                    return
+                self.clo_line.append(ano_line)
                 index = self.find_index(ano_line, cur_node.position)
                 open_list.append(node([ano_line, index], 'a', cur_node))
-                return True
         except Exception:
             return False
     
@@ -82,7 +85,8 @@ class find_all_path(Metro):
     
     def check_node_right(self, current_node, open_list):
         try:
-            if current_node.position[1] < len(self.metro[current_node.position[0]]) - 1 and current_node.run in ['a', 'r']:
+            if current_node.position[1] < len(self.metro[current_node.position[0]]) - 1\
+               and current_node.run in ['a', 'r']:
                 new_position = current_node.position.copy()
                 new_position[1] += 1
                 open_list.append(node(new_position, 'r', current_node))
@@ -91,23 +95,31 @@ class find_all_path(Metro):
 
     def bfs(self):
         open_list = [node(self.start, 'a', None)]
+        output = []
+        self.clo_line = [self.start[0]]
         while open_list:
             current_node = open_list.pop(0)
+
             if current_node.position == self.end:
                 path = []
                 current = current_node
                 while current is not None:
                     path.append(current.position)
                     current = current.parent
-                return path[::-1]
+
+                output.append(path[::-1])
 
             self.check_node_anoline(current_node, open_list)
             self.check_node_left(current_node, open_list)
             self.check_node_right(current_node, open_list)
+        return output
 
 
 def main():
-    print(*find_all_path('delhi-metro-stations').bfs(), sep=' -> ')
+    for x in find_all_path('delhi-metro-stations').bfs():
+        print(*x, sep=' -> ')
+        print()
+    # print(find_all_path('delhi-metro-stations').bfs())
 
 
 if __name__ == '__main__':
