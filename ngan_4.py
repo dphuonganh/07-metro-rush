@@ -15,10 +15,13 @@ class Station:
     def add_line(self, line_name):
         self.lines.add(line_name)
 
-    def push_train(self, train_label):
-        self.trains.insert(0, train_label)
+    def add_train(self, train_label):
+        if len(self.trains) < self.capacity:
+            self.trains.insert(0, train_label)
+            return True
+        return False
 
-    def pop_train(self):
+    def remove_train(self):
         return self.trains.pop(-1)
 
 
@@ -93,13 +96,40 @@ class Metro(ABC):
     def find_shortest_path(self):
         pass
 
-    def display_whatever(self):
-        print(self.get_station(*self.start).trains)
+    def move_trains_1(self):
+        for index in range(len(self.route) - 1, 0, -1):
+            cur_station = self.get_station(*self.route[index])
+            pre_station = self.get_station(*self.route[index - 1])
+            if pre_station.trains:
+                if cur_station.add_train(pre_station.trains[-1]):
+                    pre_station.remove_train()
+
+    def display_turn(self, turn):
+        print('Turn', turn)
+        result = []
+        for pos in self.route:
+            station = self.get_station(*pos)
+            if len(station.trains):
+                result.append('{}({}:{})-{}'.format(
+                    station.name, pos[0], pos[1], ','.join(station.trains)))
+        print('|'.join(result))
+
+    def update_turn(self):
+        turn = 1
+        self.display_turn(turn)
+        while len(self.get_station(*self.end).trains) != self.num_trains:
+            self.move_trains_1()
+            turn += 1
+            self.display_turn(turn)
 
 
 class BFS(Metro):
     def find_shortest_path(self):
-        pass
+        self.route = [['Blue Line', 17],
+                      ['Blue Line', 18],
+                      ['Blue Line', 19],
+                      ['Blue Line', 20],
+                      ['Blue Line', 21]]
 
 
 def exit_program():
@@ -118,7 +148,8 @@ def read_data_file(filename):
 def main():
     delhi = BFS()
     delhi.build_metro(read_data_file('delhi-metro-stations'))
-    delhi.display_whatever()
+    delhi.find_shortest_path()
+    delhi.update_turn()
 
 
 if __name__ == '__main__':
