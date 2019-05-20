@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from sys import stderr
 from time import time
 from math import inf
+from metro_rush import finding
 
 
 class Station:
@@ -125,11 +126,11 @@ class Metro(ABC):
 
 class BFS(Metro):
     def find_shortest_path(self):
-        self.route = [['Blue Line', 17],
+        self.route = [['Blue Line', 16],
+                      ['Blue Line', 17],
                       ['Blue Line', 18],
                       ['Blue Line', 19],
-                      ['Blue Line', 20],
-                      ['Blue Line', 21]]
+                      ['Blue Line', 20]]
 
 
 def exit_program():

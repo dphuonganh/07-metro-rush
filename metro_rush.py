@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from sys import argv
 
 
 class Station:
@@ -47,14 +46,14 @@ class Metro:
 
 
 class node:
-    def __init__(self, position, run, parent):
+    def __init__(self, position, run, parent, action=None):
         self.position = position
         self.run = run
         self.parent = parent
+        self.action = action
     
     def __eq__(self, other):
         return self.position == other.position
-
 
 class FindAllPath(Metro):
     def find_index(self, line, position):
@@ -68,7 +67,7 @@ class FindAllPath(Metro):
             if self.metro[cur_node.position[0]][cur_node.position[1]].line:
                 ano_line = self.metro[cur_node.position[0]][cur_node.position[1]].line
                 index = self.find_index(ano_line, cur_node.position)
-                open_list.append(node([ano_line, index], 'a', cur_node))
+                open_list.append(node([ano_line, index], 'a', cur_node, 'SWITCH'))
         except Exception:
             return False
     
@@ -77,7 +76,7 @@ class FindAllPath(Metro):
             if current_node.position[1] > 0 and current_node.run in ['a', 'l']:
                 new_position = current_node.position.copy()
                 new_position[1] -= 1
-                open_list.append(node(new_position, 'l', current_node))
+                open_list.append(node(new_position, 'l', current_node, 'MOVE'))
         except TypeError:
             pass
     
@@ -87,38 +86,35 @@ class FindAllPath(Metro):
                and current_node.run in ['a', 'r']:
                 new_position = current_node.position.copy()
                 new_position[1] += 1
-                open_list.append(node(new_position, 'r', current_node))
+                open_list.append(node(new_position, 'r', current_node, 'MOVE'))
         except TypeError:
             pass
 
     def bfs(self):
         open_list = [node(self.start, 'a', None)]
-        output = []
         close_list = []
         while open_list:
             current_node = open_list.pop(0)
             if current_node.position in close_list:
                 continue
-
+            close_list.append(current_node.position)
             if current_node.position == self.end:
                 path = []
                 current = current_node
                 while current is not None:
-                    path.append(current.position)
+                    path.append([current.action] + current_node.position)
                     current = current.parent
-                output.append(path[::-1])
-                continue
-            close_list.append(current_node.position)
+                return path[::-1]
 
             self.check_node_anoline(current_node, open_list)
             self.check_node_left(current_node, open_list)
             self.check_node_right(current_node, open_list)
-        return output
 
 
-def main():
-    print(*FindAllPath('delhi-metro-stations').bfs(), sep='\n')
+def finding():
+    return FindAllPath('delhi-metro-stations').bfs()
 
 
 if __name__ == '__main__':
-    main()
+    print(finding())
+
