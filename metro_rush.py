@@ -22,13 +22,6 @@ class Station:
 ###############################################################################
 
 
-class Node:
-    def __init__(self):
-        pass
-
-###############################################################################
-
-
 class Train:
     def __init__(self, label, line_name, station_id):
         self.label = label
@@ -52,7 +45,7 @@ class Graph(ABC):
         self.start = None
         self.end = None
         self.num_trains = 0
-        self.paths = []
+        self.path = []
 
     def get_station(self, line_name, station_id):
         try:
@@ -121,9 +114,83 @@ class Graph(ABC):
 ###############################################################################
 
 
+class Node:
+    def __init__(self, pos, parent, status=0, action=None):
+        self.pos = pos
+        self.parent = parent
+        self.status = status
+        self.action = action
+
+
+###############################################################################
+
+
 class BFS(Graph):
+    def get_station_id(self, line_name, station_name):
+        for index, station in enumerate(self.lines[line_name]):
+            if station.name == station_name:
+                return index + 1
+
+    def check_another_lines(self, current_node, open_list):
+        try:
+            station_name = self.get_station(*current_node.pos).name
+            lines = self.get_station(*current_node.pos).lines.copy()
+            lines.remove(current_node.pos[0])
+            while lines:
+                another_line = lines.pop()
+                if another_line not in self.lines:
+                    continue
+                station_id = self.get_station_id(another_line, station_name)
+                open_list.append(Node([another_line, station_id], current_node,
+                                      0, 'switch'))
+        except TypeError:
+            pass
+
+    @staticmethod
+    def check_left_node(current_node, open_list):
+        try:
+            if current_node.pos[1] > 1 and current_node.status != 1:
+                next_pos = current_node.pos.copy()
+                next_pos[1] -= 1
+                open_list.append(Node(next_pos, current_node, -1, 'move'))
+        except TypeError:
+            pass
+
+    def check_right_node(self, current_node, open_list):
+        try:
+            if current_node.pos[1] < len(self.lines[current_node.pos[0]]) \
+                    and current_node.status != -1:
+                next_pos = current_node.pos.copy()
+                next_pos[1] += 1
+                open_list.append(Node(next_pos, current_node, 1, 'move'))
+        except TypeError:
+            pass
+
+    def check_neighbor_node(self, current_node, open_list):
+        self.check_another_lines(current_node, open_list)
+        self.check_left_node(current_node, open_list)
+        self.check_right_node(current_node, open_list)
+
+    @staticmethod
+    def get_route(node):
+        result = []
+        while node.parent:
+            result.append(node)
+            node = node.parent
+        result.append(node)
+        return result[::-1]
+
     def find_all_path(self):
-        pass
+        open_list = [Node(self.start, None)]
+        close_list = []
+        while open_list:
+            current_node = open_list.pop(0)
+            if current_node.pos in close_list:
+                continue
+            if current_node.pos == self.end:
+                self.path = self.get_route(current_node)
+            close_list.append(current_node.pos)
+            self.check_neighbor_node(current_node, open_list)
 
 
 ###############################################################################
@@ -148,6 +215,7 @@ def read_data_file(filename):
 def main():
     delhi = BFS()
     delhi.create_graph(read_data_file('delhi-metro-stations'))
+    delhi.find_all_path()
 
 
 if __name__ == '__main__':
