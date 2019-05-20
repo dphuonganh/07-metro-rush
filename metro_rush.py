@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from sys import argv
 
 
 class Station:
@@ -92,7 +91,6 @@ class FindAllPath(Metro):
 
     def bfs(self):
         open_list = [node(self.start, 'a', None)]
-        # output = []
         close_list = []
         while open_list:
             current_node = open_list.pop(0)
@@ -106,17 +104,10 @@ class FindAllPath(Metro):
                     path.append(current.position)
                     current = current.parent
                 return path[::-1]
-                # output.append(path[::-1])
-                # continue
 
             self.check_node_anoline(current_node, open_list)
             self.check_node_left(current_node, open_list)
             self.check_node_right(current_node, open_list)
-        # return output
-
-
-# class MoveTrain(Metro):
-    # def update
 
 
 def finding():
