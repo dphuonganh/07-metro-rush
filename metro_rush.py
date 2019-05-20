@@ -46,10 +46,11 @@ class Metro:
 
 
 class node:
-    def __init__(self, position, run, parent):
+    def __init__(self, position, run, parent, action=None):
         self.position = position
         self.run = run
         self.parent = parent
+        self.action = action
     
     def __eq__(self, other):
         return self.position == other.position
@@ -66,7 +67,7 @@ class FindAllPath(Metro):
             if self.metro[cur_node.position[0]][cur_node.position[1]].line:
                 ano_line = self.metro[cur_node.position[0]][cur_node.position[1]].line
                 index = self.find_index(ano_line, cur_node.position)
-                open_list.append(node([ano_line, index], 'a', cur_node))
+                open_list.append(node([ano_line, index], 'a', cur_node, 'SWITCH'))
         except Exception:
             return False
     
@@ -75,7 +76,7 @@ class FindAllPath(Metro):
             if current_node.position[1] > 0 and current_node.run in ['a', 'l']:
                 new_position = current_node.position.copy()
                 new_position[1] -= 1
-                open_list.append(node(new_position, 'l', current_node))
+                open_list.append(node(new_position, 'l', current_node, 'MOVE'))
         except TypeError:
             pass
     
@@ -85,7 +86,7 @@ class FindAllPath(Metro):
                and current_node.run in ['a', 'r']:
                 new_position = current_node.position.copy()
                 new_position[1] += 1
-                open_list.append(node(new_position, 'r', current_node))
+                open_list.append(node(new_position, 'r', current_node, 'MOVE'))
         except TypeError:
             pass
 
@@ -101,7 +102,7 @@ class FindAllPath(Metro):
                 path = []
                 current = current_node
                 while current is not None:
-                    path.append(current.position)
+                    path.append([current.action] + current_node.position)
                     current = current.parent
                 return path[::-1]
 
