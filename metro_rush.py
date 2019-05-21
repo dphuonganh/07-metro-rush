@@ -41,7 +41,7 @@ class Graph(ABC):
         self.start = None
         self.end = None
         self.num_trains = 0
-        self.path = []
+        self.paths = []
         self.num_turns = 0
 
     def get_station(self, line_name, station_id):
@@ -186,14 +186,15 @@ class BFS(Graph):
             if current_node.pos in close_list:
                 continue
             if current_node.pos == self.end:
-                self.path = self.get_route(current_node)
+                self.paths.append(self.get_route(current_node))
+                continue
             close_list.append(current_node.pos)
             self.check_neighbor_node(current_node, open_list)
 
-    def print_trains(self):
+    def print_trains_1(self):
         print('___Turn {}___'.format(self.num_turns))
         result = []
-        for node in self.path:
+        for node in self.paths[0]:
             if node.action == 'switch':
                 continue
             station = self.get_station(*node.pos)
@@ -205,30 +206,51 @@ class BFS(Graph):
                                                 ','.join(station.trains)))
         print('|'.join(result))
 
+    def print_trains_2(self):
+        print('___Turn {}___'.format(self.num_turns))
+        result = [[], []]
+        for index, path in enumerate(self.paths[:2]):
+            for node in path:
+                if node.action == 'switch':
+                    continue
+                station = self.get_station(*node.pos)
+                if not len(station.trains):
+                    continue
+                result[index].append('{}({}:{})-{}'.format(
+                    station.name, node.pos[0], node.pos[1],
+                    ','.join(station.trains)))
+            print('\t* Path {}:'.format(index + 1))
+            print('|'.join(result[index]))
+
     @staticmethod
-    def go_train(current, parent):
-        if parent.trains:
-            if current.add_train(parent.trains[-1]):
-                parent.remove_train()
+    def run_one_train(current_station, parent_station):
+        if parent_station.trains:
+            if current_station.add_train(parent_station.trains[-1]):
+                parent_station.remove_train()
 
-    def update_trains(self):
-        for node in self.path[:0:-1]:
-            current = self.get_station(*node.pos)
-            parent = self.get_station(*node.parent.pos)
-            if node.action == 'move' and parent.trains:
-                if node.parent.action in [None, 'move']:
-                    self.go_train(current, parent)
-                else:
-                    if node.parent.flag:
-                        self.go_train(current, parent)
-                    node.parent.flag = not node.parent.flag
-        self.num_turns += 1
+    def update_trains_1(self, index):
+        for node in self.paths[index][:0:-1]:
+            current_station = self.get_station(*node.pos)
+            parent_station = self.get_station(*node.parent.pos)
+            if node.action != 'move' or not parent_station.trains:
+                continue
+            if node.parent.action in [None, 'move']:
+                self.run_one_train(current_station, parent_station)
+            else:
+                if node.parent.flag:
+                    self.run_one_train(current_station, parent_station)
+                node.parent.flag = not node.parent.flag
 
-    def move_trains(self):
-        self.print_trains()
+    def update_trains_2(self):
+        for index in range(2):
+            self.update_trains_1(index)
+
+    def run_all_trains(self):
+        self.print_trains_2()
         while len(self.get_station(*self.end).trains) < self.num_trains:
-            self.update_trains()
-            self.print_trains()
+            self.update_trains_2()
+            self.num_turns += 1
+            self.print_trains_2()
 
 
 ###############################################################################
@@ -254,9 +276,8 @@ def main():
     delhi = BFS()
     delhi.create_graph(read_data_file('delhi-metro-stations'))
     delhi.find_all_path()
-    delhi.move_trains()
-    # for node in delhi.path:
-    #     print(node.action, node.pos, delhi.get_station(*node.pos).name)
+    delhi.run_all_trains()
+    print(len(delhi.paths[1]))
 
 
 if __name__ == '__main__':
