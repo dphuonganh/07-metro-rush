@@ -18,21 +18,17 @@ class Station:
     def add_line(self, line_name):
         self.lines.add(line_name)
 
+    def add_train(self, train):
+        if len(self.trains) < self.capacity:
+            self.trains.insert(0, train)
+            return True
+        return False
 
-###############################################################################
-
-
-class Train:
-    def __init__(self, label, line_name, station_id):
-        self.label = label
-        self.line_name = line_name
-        self.station_id = station_id
-
-    def switch_line(self):
-        pass
-
-    def move_station(self):
-        pass
+    def remove_train(self):
+        try:
+            self.trains.pop(-1)
+        except IndexError:
+            pass
 
 
 ###############################################################################
@@ -46,6 +42,7 @@ class Graph(ABC):
         self.end = None
         self.num_trains = 0
         self.path = []
+        self.num_turns = 0
 
     def get_station(self, line_name, station_id):
         try:
@@ -78,7 +75,7 @@ class Graph(ABC):
     def setup_trains(self):
         trains = []
         for index in range(self.num_trains, 0, -1):
-            trains.append(Train(index, self.start[0], self.start[1]))
+            trains.append('T{}'.format(index))
         self.get_station(*self.start).trains = trains
 
     def create_graph(self, data):
@@ -115,11 +112,12 @@ class Graph(ABC):
 
 
 class Node:
-    def __init__(self, pos, parent, status=0, action=None):
+    def __init__(self, pos, parent, status=0, action=None, flag=False):
         self.pos = pos
         self.parent = parent
         self.status = status
         self.action = action
+        self.flag = flag
 
 
 ###############################################################################
@@ -192,6 +190,46 @@ class BFS(Graph):
             close_list.append(current_node.pos)
             self.check_neighbor_node(current_node, open_list)
 
+    def print_trains(self):
+        print('___Turn {}___'.format(self.num_turns))
+        result = []
+        for node in self.path:
+            if node.action == 'switch':
+                continue
+            station = self.get_station(*node.pos)
+            if not len(station.trains):
+                continue
+            result.append('{}({}:{})-{}'.format(station.name,
+                                                node.pos[0],
+                                                node.pos[1],
+                                                ','.join(station.trains)))
+        print('|'.join(result))
+
+    @staticmethod
+    def go_train(current, parent):
+        if parent.trains:
+            if current.add_train(parent.trains[-1]):
+                parent.remove_train()
+
+    def update_trains(self):
+        for node in self.path[:0:-1]:
+            current = self.get_station(*node.pos)
+            parent = self.get_station(*node.parent.pos)
+            if node.action == 'move' and parent.trains:
+                if node.parent.action in [None, 'move']:
+                    self.go_train(current, parent)
+                else:
+                    if node.parent.flag:
+                        self.go_train(current, parent)
+                    node.parent.flag = not node.parent.flag
+        self.num_turns += 1
+
+    def move_trains(self):
+        self.print_trains()
+        while len(self.get_station(*self.end).trains) < self.num_trains:
+            self.update_trains()
+            self.print_trains()
+
 
 ###############################################################################
 
@@ -216,6 +254,9 @@ def main():
     delhi = BFS()
     delhi.create_graph(read_data_file('delhi-metro-stations'))
     delhi.find_all_path()
+    delhi.move_trains()
+    # for node in delhi.path:
+    #     print(node.action, node.pos, delhi.get_station(*node.pos).name)
 
 
 if __name__ == '__main__':
