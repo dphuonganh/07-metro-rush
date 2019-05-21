@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from argparse import ArgumentParser
 from abc import ABC, abstractmethod
 from sys import stderr
 from time import time
@@ -191,7 +192,7 @@ class BFS(Graph):
             close_list.append(current_node.pos)
             self.check_neighbor_node(current_node, open_list)
 
-    def print_trains_1(self):
+    def print_trains_0(self):
         print('___Turn {}___'.format(self.num_turns))
         result = []
         for node in self.paths[0]:
@@ -206,7 +207,7 @@ class BFS(Graph):
                                                 ','.join(station.trains)))
         print('|'.join(result))
 
-    def print_trains_2(self):
+    def print_trains_1(self):
         print('___Turn {}___'.format(self.num_turns))
         result = [[], []]
         for index, path in enumerate(self.paths[:2]):
@@ -222,13 +223,19 @@ class BFS(Graph):
             print('\t* Path {}:'.format(index + 1))
             print('|'.join(result[index]))
 
+    def print_trains(self, algo):
+        if algo == 0:
+            self.print_trains_0()
+        elif algo == 1:
+            self.print_trains_1()
+
     @staticmethod
     def run_one_train(current_station, parent_station):
         if parent_station.trains:
             if current_station.add_train(parent_station.trains[-1]):
                 parent_station.remove_train()
 
-    def update_trains_1(self, index):
+    def update_trains_0(self, index=0):
         for node in self.paths[index][:0:-1]:
             current_station = self.get_station(*node.pos)
             parent_station = self.get_station(*node.parent.pos)
@@ -241,16 +248,22 @@ class BFS(Graph):
                     self.run_one_train(current_station, parent_station)
                 node.parent.flag = not node.parent.flag
 
-    def update_trains_2(self):
+    def update_trains_1(self):
         for index in range(2):
-            self.update_trains_1(index)
+            self.update_trains_0(index)
 
-    def run_all_trains(self):
-        self.print_trains_2()
+    def update_trains(self, algo):
+        if algo == 0:
+            self.update_trains_0()
+        elif algo == 1:
+            self.update_trains_1()
+
+    def run_all_trains(self, algo):
+        self.print_trains(algo)
         while len(self.get_station(*self.end).trains) < self.num_trains:
-            self.update_trains_2()
+            self.update_trains(algo)
             self.num_turns += 1
-            self.print_trains_2()
+            self.print_trains(algo)
 
 
 ###############################################################################
@@ -269,15 +282,30 @@ def read_data_file(filename):
         exit_program()
 
 
+def get_arguments():
+    parser = ArgumentParser(prog='Metro Network',
+                            usage='[filename] --algo [ALGO] --gui')
+    parser.add_argument('filename', help='A metro stations file')
+    parser.add_argument('--algo', nargs='?', metavar='ALGO', default=0,
+                        choices=[0, 1], type=int,
+                        help='specify which algorithm to use for finding '
+                             'the smallest number of turns')
+    parser.add_argument('--gui', action='store_true',
+                        help='visualize the Metro Network with Pyglet')
+    return parser.parse_args()
+
+
 ###############################################################################
 
 
 def main():
+    args = get_arguments()
     delhi = BFS()
-    delhi.create_graph(read_data_file('delhi-metro-stations'))
+    delhi.create_graph(read_data_file(args.filename))
     delhi.find_all_path()
-    delhi.run_all_trains()
-    print(len(delhi.paths[1]))
+    delhi.run_all_trains(args.algo)
+    if args.gui:
+        pass
 
 
 if __name__ == '__main__':
