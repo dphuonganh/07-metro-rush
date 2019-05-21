@@ -92,23 +92,27 @@ class FindAllPath(Metro):
 
     def bfs(self):
         open_list = [node(self.start, 'a', None)]
+        output = []
         close_list = []
         while open_list:
             current_node = open_list.pop(0)
             if current_node.position in close_list:
                 continue
-            close_list.append(current_node.position)
+            
             if current_node.position == self.end:
                 path = []
                 current = current_node
                 while current is not None:
-                    path.append([current.action] + current_node.position)
+                    path.append([current.action] + current.position)
                     current = current.parent
-                return path[::-1]
+                output.append(path[::-1])
+                continue
+            close_list.append(current_node.position)
 
             self.check_node_anoline(current_node, open_list)
             self.check_node_left(current_node, open_list)
             self.check_node_right(current_node, open_list)
+        return output
 
 
 def finding():
@@ -116,5 +120,5 @@ def finding():
 
 
 if __name__ == '__main__':
-    print(finding())
+    print(*finding(), sep='\n')
 
