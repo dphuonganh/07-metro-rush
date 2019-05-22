@@ -15,11 +15,14 @@ def Init():
     point = 1
     for key, list_station in Graph.metro.items():
         temp = []
-        for index, _ in enumerate(list_station, 1):
-            temp.append(Object(index*40, point*100, 'sta.jpg'))
+        for index, station in enumerate(list_station, 1):
+            if station.line:
+                temp.append(Object(index*40, point*100, 'swi.png'))
+            else:
+                temp.append(Object(index*40, point*100, 'sta.jpg'))
         point += 1
         output[key.split()[0]] = temp
-    
+
     connect = []
     for key, value in Graph.metro.items():
         for index, ele in enumerate(value):
@@ -32,7 +35,7 @@ def Init():
             except TypeError:
                 pass
     return output, connect
-    
+
 
 class Object:
     def __init__(self, posx, posy, img):
@@ -41,16 +44,16 @@ class Object:
         self.sprite = self.Sprite(img)
         self.sprite.x = self.posx
         self.sprite.y = self.posy
-    
+
     def draw(self):
         self.sprite.draw()
-    
+
     def Sprite(self, img):
         image = pyglet.image.load(img)
         image.anchor_x = image.width // 2
         image.anchor_y = image.width // 2
         return pyglet.sprite.Sprite(image)
-    
+
     def update(self):
         self.sprite.x = self.posx
         self.sprite.y = self.posy
@@ -71,7 +74,7 @@ class Window(pyglet.window.Window):
             'Blue' : [0, 0, 255],
             'Magenta' : [255, 0, 255]
         }
-        
+
     def on_draw(self):
         self.clear()
         for x in self.connect:
@@ -85,7 +88,7 @@ class Window(pyglet.window.Window):
             y1 = x[-1].posy
             if key in self.color:
                 temp = self.color[key]
-                pyglet.graphics.draw(2, pyglet.gl.GL_LINES,
+                pyglet.graphics.draw(2, pyglet.gl.GL_LINE_STRIP,
                             ('v2i', (x0, y0, x1, y1)),
                             ('c3B', (temp[0], temp[1], temp[2], temp[0], temp[1], temp[2])))
             else:
