@@ -374,8 +374,9 @@ def main():
     #     print('\n__Path__', i + 1)
     #     for node in delhi.paths[i]:
     #         print(delhi.get_station(*node.pos).name)
-    print('='*200)
-    print(delhi.output)
+    print()
+    for turn in delhi.output:
+        print(turn)
     if args.gui:
         from graphic import GUI
         GUI(delhi.lines)
