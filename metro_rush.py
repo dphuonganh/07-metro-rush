@@ -43,6 +43,7 @@ class Graph(ABC):
         self.end = None
         self.num_trains = 0
         self.paths = []
+        self.trains_start = [0, 0]
         self.num_turns = 0
 
     def get_station(self, line_name, station_id):
@@ -192,6 +193,34 @@ class BFS(Graph):
             close_list.append(current_node.pos)
             self.check_neighbor_node(current_node, open_list)
 
+    def get_constant(self):
+        const = [1, 1]
+        for i in range(2):
+            for node in self.paths[i]:
+                if node.action == 'switch':
+                    const[i] = 2
+                    break
+        return const
+
+    def get_cost_two_paths(self):
+        c1, c2 = self.get_constant()
+        cost1 = len(self.paths[0]) - 1 + self.trains_start[0] * c1
+        cost2 = len(self.paths[1]) - 1 + self.trains_start[1] * c2
+        return cost1, cost2
+
+    def calculate_trains_start(self, algo):
+        if len(self.paths) == 1 or algo == 0:
+            self.trains_start[0] = self.num_trains
+        elif len(self.paths) > 1:
+            cost1, cost2 = self.get_cost_two_paths()
+            for index in range(1, self.num_trains + 1):
+                if cost1 <= cost2:
+                    self.trains_start[0] += 1
+                    cost1 += 2
+                    continue
+                self.trains_start[1] += 1
+                cost2 += 2
+
     def print_trains_0(self):
         print('___Turn {}___'.format(self.num_turns))
         result = []
@@ -205,7 +234,7 @@ class BFS(Graph):
                                                 node.pos[0],
                                                 node.pos[1],
                                                 ','.join(station.trains)))
-        print('|'.join(result))
+        print('\n'.join(result))
 
     def print_trains_1(self):
         print('___Turn {}___'.format(self.num_turns))
@@ -221,7 +250,7 @@ class BFS(Graph):
                     station.name, node.pos[0], node.pos[1],
                     ','.join(station.trains)))
             print('\t* Path {}:'.format(index + 1))
-            print('|'.join(result[index]))
+            print('\n'.join(result[index]))
 
     def print_trains(self, algo):
         if algo == 0:
@@ -234,6 +263,14 @@ class BFS(Graph):
         if parent_station.trains:
             if current_station.add_train(parent_station.trains[-1]):
                 parent_station.remove_train()
+                return True
+        return False
+
+    def check_out_train(self, index):
+        print(self.trains_start)
+        if self.trains_start[index] > 0:
+            return True
+        return False
 
     def update_trains_0(self, index=0):
         for node in self.paths[index][:0:-1]:
@@ -241,8 +278,12 @@ class BFS(Graph):
             parent_station = self.get_station(*node.parent.pos)
             if node.action != 'move' or not parent_station.trains:
                 continue
-            if node.parent.action in [None, 'move']:
+            if node.parent.action == 'move':
                 self.run_one_train(current_station, parent_station)
+            elif not node.parent.action:
+                if self.check_out_train(index):
+                    if self.run_one_train(current_station, parent_station):
+                        self.trains_start[index] -= 1
             else:
                 if node.parent.flag:
                     self.run_one_train(current_station, parent_station)
@@ -303,6 +344,7 @@ def main():
     delhi = BFS()
     delhi.create_graph(read_data_file(args.filename))
     delhi.find_all_path()
+    delhi.calculate_trains_start(args.algo)
     delhi.run_all_trains(args.algo)
     if args.gui:
         pass
