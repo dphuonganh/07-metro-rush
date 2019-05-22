@@ -45,6 +45,7 @@ class Graph:
         self.trains_start = [0, 0]
         self.num_turns = 0
         self.circular_lines = set()
+        self.output = []
 
     def get_station(self, line_name, station_id):
         try:
@@ -240,8 +241,10 @@ class BFS(Graph):
     def print_trains_0(self):
         print('___Turn {}___'.format(self.num_turns))
         result = []
+        temp = []
         for node in self.paths[0]:
             if node.action == 'switch':
+                temp.append(node.pos)
                 continue
             station = self.get_station(*node.pos)
             if not len(station.trains):
@@ -250,12 +253,15 @@ class BFS(Graph):
                                                 node.pos[0],
                                                 node.pos[1],
                                                 ','.join(station.trains)))
+            temp.append(node.pos)
+        self.output.append(temp.copy())
         print('\n'.join(result))
 
     def print_trains_1(self):
         print('___Turn {}___'.format(self.num_turns))
         result = [[], []]
         for index, path in enumerate(self.paths[:2]):
+            temporary = []
             for node in path:
                 if node.action == 'switch':
                     continue
@@ -265,6 +271,7 @@ class BFS(Graph):
                 result[index].append('{}({}:{})-{}'.format(
                     station.name, node.pos[0], node.pos[1],
                     ','.join(station.trains)))
+            self.output.append(temporary)
             print('\t* Path {}:'.format(index + 1))
             print('\n'.join(result[index]))
 
@@ -368,6 +375,8 @@ def main():
     #     print('\n__Path__', i + 1)
     #     for node in delhi.paths[i]:
     #         print(delhi.get_station(*node.pos).name)
+    for x in delhi.output:
+        print(x)
     if args.gui:
         from graphic import GUI
         GUI(delhi)
