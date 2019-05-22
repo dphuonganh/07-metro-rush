@@ -244,7 +244,6 @@ class BFS(Graph):
         temp = []
         for node in self.paths[0]:
             if node.action == 'switch':
-                temp.append(node.pos)
                 continue
             station = self.get_station(*node.pos)
             if not len(station.trains):
