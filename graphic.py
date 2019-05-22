@@ -1,22 +1,19 @@
 import pyglet
 from pyglet.gl import *
-from metro_rush import Metro
-from time import sleep
 
 
-def Init():
-    def find_index(Graph, line, position):
-        for x, y in enumerate(Graph[line]):
-            if y.name == Graph[position[0]][position[1]].name:
+def Init(Metro):
+    def find_index(Metro, line, position):
+        for x, y in enumerate(Metro[line]):
+            if y.name == Metro[position[0]][position[1]].name:
                 return x
 
-    Graph = Metro('delhi-metro-stations')
     output = {}
     point = 1
-    for key, list_station in Graph.metro.items():
+    for key, list_station in Metro.items():
         temp = []
         for index, station in enumerate(list_station, 1):
-            if station.line:
+            if len(station.lines) > 1:
                 temp.append(Object(index*40, point*100, 'swi.png'))
             else:
                 temp.append(Object(index*40, point*100, 'sta.jpg'))
@@ -24,14 +21,15 @@ def Init():
         output[key.split()[0]] = temp
 
     connect = []
-    for key, value in Graph.metro.items():
+    for key, value in Metro.items():
         for index, ele in enumerate(value):
-            if not ele.line:
+            if not ele.lines:
                 continue
             try:
-                obj1 = output[key.split()[0]][index]
-                obj2 = output[ele.line.split()[0]][find_index(Graph.metro, ele.line, [key, index])]
-                connect.append([obj1.posx, obj1.posy, obj2.posx, obj2.posy])
+                for x in ele.lines:
+                    obj1 = output[key.split()[0]][index]
+                    obj2 = output[x.split()[0]][find_index(Metro, x, [key, index])]
+                    connect.append([obj1.posx, obj1.posy, obj2.posx, obj2.posy])
             except TypeError:
                 pass
     return output, connect
@@ -60,10 +58,10 @@ class Object:
 
 
 class Window(pyglet.window.Window):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dic_graph=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_rate = 1/60.0
-        self.graph, self.connect = Init()
+        self.graph, self.connect = Init(dic_graph)
         self.color = {
             'Pink' : [255, 20, 147],
             'Red' : [255, 0, 0],
@@ -88,7 +86,7 @@ class Window(pyglet.window.Window):
             y1 = x[-1].posy
             if key in self.color:
                 temp = self.color[key]
-                pyglet.graphics.draw(2, pyglet.gl.GL_LINE_STRIP,
+                pyglet.graphics.draw(2, pyglet.gl.GL_LINES,
                             ('v2i', (x0, y0, x1, y1)),
                             ('c3B', (temp[0], temp[1], temp[2], temp[0], temp[1], temp[2])))
             else:
@@ -102,11 +100,7 @@ class Window(pyglet.window.Window):
         pass
 
 
-def main():
-    window = Window(1920, 768, 'Visualzation')
+def GUI(Graph):
+    window = Window(Graph, 1920, 800, 'Visualzation')
     pyglet.clock.schedule_interval(window.update, window.frame_rate)
     pyglet.app.run()
-
-
-if __name__ == '__main__':
-    main()

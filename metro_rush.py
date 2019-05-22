@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-from abc import ABC, abstractmethod
 from sys import stderr
 from time import time
 from math import inf
@@ -35,7 +34,7 @@ class Station:
 ###############################################################################
 
 
-class Graph(ABC):
+class Graph:
     def __init__(self):
         self.stations = {}
         self.lines = {}
@@ -102,12 +101,9 @@ class Graph(ABC):
                 elif row:
                     args = [arg.strip() for arg in row.split(':')]
                     self.create_station(args, line_name)
+            return self.lines
         except (NameError, ValueError):
             exit_program()
-
-    @abstractmethod
-    def find_all_path(self):
-        pass
 
 
 ###############################################################################
@@ -347,7 +343,8 @@ def main():
     delhi.calculate_trains_start(args.algo)
     delhi.run_all_trains(args.algo)
     if args.gui:
-        pass
+        from graphic import GUI
+        GUI(delhi.lines)
 
 
 if __name__ == '__main__':
