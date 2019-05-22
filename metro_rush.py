@@ -44,6 +44,7 @@ class Graph:
         self.paths = []
         self.trains_start = [0, 0]
         self.num_turns = 0
+        self.circular_lines = set()
 
     def get_station(self, line_name, station_id):
         try:
@@ -55,12 +56,20 @@ class Graph:
         if line_name not in self.lines:
             self.lines[line_name] = []
 
+    def check_circular_line(self, line_name, station_name):
+        try:
+            if station_name == self.lines[line_name][0].name:
+                self.circular_lines.add(line_name)
+        except IndexError:
+            pass
+
     def create_station(self, args, line_name):
         station_name, other_line_name = None, None
         if len(args) == 2:
             _, station_name = args
         elif len(args) == 4:
             _, station_name, _, other_line_name = args
+        self.check_circular_line(line_name, station_name)
         if station_name not in self.stations:
             self.stations[station_name] = Station(station_name, line_name)
         else:
@@ -142,22 +151,32 @@ class BFS(Graph):
         except TypeError:
             pass
 
-    @staticmethod
-    def check_left_node(current_node, open_list):
+    def check_left_node(self, current_node, open_list):
         try:
+            n = len(self.lines[current_node.pos[0]])
             if current_node.pos[1] > 1 and current_node.status != 1:
                 next_pos = current_node.pos.copy()
                 next_pos[1] -= 1
+                open_list.append(Node(next_pos, current_node, -1, 'move'))
+            elif current_node.pos[0] in self.circular_lines \
+                    and current_node.pos[1] == 1:
+                next_pos = current_node.pos.copy()
+                next_pos[1] = n - 1
                 open_list.append(Node(next_pos, current_node, -1, 'move'))
         except TypeError:
             pass
 
     def check_right_node(self, current_node, open_list):
         try:
-            if current_node.pos[1] < len(self.lines[current_node.pos[0]]) \
-                    and current_node.status != -1:
+            n = len(self.lines[current_node.pos[0]])
+            if current_node.pos[1] < n and current_node.status != -1:
                 next_pos = current_node.pos.copy()
                 next_pos[1] += 1
+                open_list.append(Node(next_pos, current_node, 1, 'move'))
+            elif current_node.pos[0] in self.circular_lines \
+                    and current_node.pos[1] == n:
+                next_pos = current_node.pos.copy()
+                next_pos[1] = 2
                 open_list.append(Node(next_pos, current_node, 1, 'move'))
         except TypeError:
             pass
@@ -210,6 +229,7 @@ class BFS(Graph):
         elif len(self.paths) > 1:
             cost1, cost2 = self.get_cost_two_paths()
             for index in range(1, self.num_trains + 1):
+                print(cost1, cost2)
                 if cost1 <= cost2:
                     self.trains_start[0] += 1
                     cost1 += 2
@@ -263,7 +283,6 @@ class BFS(Graph):
         return False
 
     def check_out_train(self, index):
-        print(self.trains_start)
         if self.trains_start[index] > 0:
             return True
         return False
@@ -290,10 +309,13 @@ class BFS(Graph):
             self.update_trains_0(index)
 
     def update_trains(self, algo):
-        if algo == 0:
-            self.update_trains_0()
-        elif algo == 1:
-            self.update_trains_1()
+        try:
+            if algo == 0:
+                self.update_trains_0()
+            elif algo == 1:
+                self.update_trains_1()
+        except IndexError:
+            pass
 
     def run_all_trains(self, algo):
         self.print_trains(algo)
@@ -342,9 +364,13 @@ def main():
     delhi.find_all_path()
     delhi.calculate_trains_start(args.algo)
     delhi.run_all_trains(args.algo)
+    # for i, y in enumerate(delhi.paths):
+    #     print('\n__Path__', i + 1)
+    #     for node in delhi.paths[i]:
+    #         print(delhi.get_station(*node.pos).name)
     if args.gui:
         from graphic import GUI
-        GUI(delhi.lines)
+        GUI(delhi)
 
 
 if __name__ == '__main__':
