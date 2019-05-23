@@ -1,0 +1,19 @@
+#Line 1
+1:A
+2:B
+3:C
+4:D
+#Line 2
+1:E
+2:B
+3:C
+4:F
+#Line 3
+1:G
+2:B
+3:C
+4:H
+
+START=Line 1:4
+END=Line 2:1
+TRAINS=10
