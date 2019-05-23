@@ -42,10 +42,15 @@ def read_data_file(filename):
 
 def main():
     """Run main program."""
+    # Setup start time of program.
     start = time()
+    # Get arguments for user input.
     args = get_arguments()
+    # Find paths and run trains.
     delhi_metro = MovingTrains(read_data_file(args.filename), args.algo)
+    # Print runtime.
     print('\nRuntime: {}s'.format(round(time() - start, 5)))
+    # Visualize metro network by Pyglet.
     if args.gui:
         from visualize import GUI
         GUI(delhi_metro)
