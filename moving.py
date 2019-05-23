@@ -29,7 +29,7 @@ class MovingTrains(BreadthFirstSearch):
         self.algo = algo
         self.depart_rate = [0, 0]
         self.num_turns = 0
-        self.output = []
+        self.output = [[], []]
         self.calculate_depart_rate()
         self.move_trains()
 
@@ -75,7 +75,7 @@ class MovingTrains(BreadthFirstSearch):
                     result[index].pop()
                     temp.pop()
                 result, temp = get_output(result, temp, index, station, node)
-            self.output.append(temp.copy())
+            self.output[index].append(temp.copy())
             display_output(result, index)
 
     def print_trains(self):
