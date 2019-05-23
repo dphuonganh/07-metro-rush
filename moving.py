@@ -29,7 +29,7 @@ class MovingTrains(BreadthFirstSearch):
         self.algo = algo
         self.depart_rate = [0, 0]
         self.num_turns = 0
-        self.output = [[], []]
+        self.output = []
         self.calculate_depart_rate()
         self.move_trains()
 
@@ -63,7 +63,8 @@ class MovingTrains(BreadthFirstSearch):
 
     def print_each_path(self):
         result = [[] for _ in range(self.algo + 1)]
-        for index, path in enumerate(self.paths[:2]):
+        sett = []
+        for index, path in enumerate(self.paths[:self.algo + 1]):
             temp = []
             for node in path:
                 station = self.get_station(node.line_name, node.station_id)
@@ -75,8 +76,11 @@ class MovingTrains(BreadthFirstSearch):
                     result[index].pop()
                     temp.pop()
                 result, temp = get_output(result, temp, index, station, node)
-            self.output[index].append(temp.copy())
+                for item in temp:
+                    if item not in sett:
+                        sett.append(item)
             display_output(result, index)
+        self.output.append(sett)
 
     def print_trains(self):
         print('___Turn {}___'.format(self.num_turns))

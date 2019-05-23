@@ -147,10 +147,10 @@ class Window(pyglet.window.Window):
                                  ('c3B', (54, 54, 54, 54, 54, 54)))
         # draw stations and lines
         for key, list_station in self.graph.items():
-            x0 = x[0].posx
-            y0 = x[0].posy
-            x1 = x[-1].posx
-            y1 = x[-1].posy
+            x0 = list_station[0].posx
+            y0 = list_station[0].posy
+            x1 = list_station[-1].posx
+            y1 = list_station[-1].posy
             # draw line
             if key in self.color:
                 temp = self.color[key]
