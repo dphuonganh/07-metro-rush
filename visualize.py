@@ -82,6 +82,8 @@ class Window(pyglet.window.Window):
         self.end = Object(end.posx, end.posy, 'cir.png')
         
         self.name_station = pyglet.text.Label(start.name, font_size=30, x=1300, y=750)
+        self.turn = pyglet.text.Label('1', font_size=30, x=25, y=750)
+        self.total_turn = pyglet.text.Label('/' + str(len(self.list_move)), font_size=30, x=70, y=750)
 
     def on_draw(self):
         self.clear()
@@ -117,12 +119,15 @@ class Window(pyglet.window.Window):
         self.end.draw()
         
         self.name_station.draw()
+        self.turn.draw()
+        self.total_turn.draw()
 
     def on_key_press(self, symbol, modifiers):
-        if symbol == key.LEFT:
+        if symbol == key.LEFT and self.current_turn > 0:
             self.current_turn -= 1
-        if symbol == key.RIGHT:
+        if symbol == key.RIGHT and self.current_turn < len(self.list_move) - 1:
             self.current_turn += 1
+        self.turn.text = str(self.current_turn + 1)
     
     def hit(self, take, list_station):
         for obj in list_station:
