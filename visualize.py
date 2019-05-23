@@ -30,11 +30,9 @@ def Init(Metro):
             try:
                 for x in ele.lines:
                     obj1 = output[key.split()[0]][index]
-                    obj2 = output[x.split()[0]][
-                        find_index(Metro, x, [key, index])]
-                    connect.append(
-                        [obj1.posx, obj1.posy, obj2.posx, obj2.posy])
-            except (TypeError, KeyError):
+                    obj2 = output[x.split()[0]][find_index(Metro, x, [key, index])]
+                    connect.append([obj1.posx, obj1.posy, obj2.posx, obj2.posy])
+            except (TypeError, KeyError, AttributeError, IndexError):
                 pass
     return output, connect
 
@@ -110,7 +108,6 @@ class Window(pyglet.window.Window):
                                      ('c3B', (255, 255, 255, 255, 255, 255)))
             for y in x:
                 y.draw()
-
         for list_coor in self.list_move[self.current_turn]:
             temp_obj = self.graph[list_coor[0].split()[0]][list_coor[1] - 1]
             Object(temp_obj.posx, temp_obj.posy, 'train.png').draw()
