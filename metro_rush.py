@@ -44,6 +44,8 @@ def main():
     """Run main program."""
     args = get_arguments()
     delhi_metro = MovingTrains(read_data_file(args.filename), args.algo)
+    print(delhi_metro.output)
+    print(len(delhi_metro.output))
     if args.gui:
         from visualize import GUI
         GUI(delhi_metro)

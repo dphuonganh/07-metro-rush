@@ -90,7 +90,7 @@ class Window(pyglet.window.Window):
         for x in self.connect:
             pyglet.graphics.draw(2, pyglet.gl.GL_LINES,
                                  ('v2i', (x[0], x[1], x[2], x[3])),
-                                 ('c3B', (255, 255, 255, 255, 255, 255)))
+                                 ('c3B', (54, 54, 54, 54, 54, 54)))
 
         for key, x in self.graph.items():
             x0 = x[0].posx
