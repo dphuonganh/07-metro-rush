@@ -42,6 +42,7 @@ class Graph:
         if station_name not in self.stations:
             self.stations[station_name] = Station(station_name, line_name)
         else:
+            self.stations[station_name].add_line(line_name)
             self.stations[station_name].add_line(another_line_name)
         if another_line_name:
             self.stations[station_name].add_line(another_line_name)
@@ -68,14 +69,13 @@ class Graph:
         line_name = None
         for row in input_data:
             row = row.strip()
+            sep_pos = row.find(':')
             if row.startswith('#'):
                 line_name = self.create_line(row[1:])
             elif row.startswith('START'):
-                sep_pos = row.find(':')
                 self.start = self.setup_start_end_point(
                     row[6:sep_pos], int(row[sep_pos + 1:]))
             elif row.startswith('END'):
-                sep_pos = row.find(':')
                 self.end = self.setup_start_end_point(
                     row[4:sep_pos], int(row[sep_pos + 1:]))
             elif row.startswith('TRAINS'):

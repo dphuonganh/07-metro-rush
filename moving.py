@@ -9,6 +9,19 @@ def move_station(current_station, parent_station):
     return False
 
 
+def get_output(result, temp, index, station, node):
+    result[index].append('{}({}:{})-{}'.format(
+        station.name, node.line_name, node.station_id,
+        ','.join(station.trains)))
+    temp.append([node.line_name, node.station_id])
+    return [result, temp]
+
+
+def display_output(result, index):
+    print('\t* Path {}:'.format(index + 1))
+    print('|'.join(result[index]))
+
+
 class MovingTrains(BreadthFirstSearch):
     def __init__(self, input_data, algo):
         super().__init__(input_data)
@@ -53,18 +66,17 @@ class MovingTrains(BreadthFirstSearch):
         for index, path in enumerate(self.paths[:2]):
             temp = []
             for node in path:
-                if node.action == 'switch':
-                    continue
                 station = self.get_station(node.line_name, node.station_id)
                 if not len(station.trains):
                     continue
-                result[index].append('{}({}:{})-{}'.format(
-                    station.name, node.line_name, node.station_id,
-                    ','.join(station.trains)))
-                temp.append([node.line_name, node.station_id])
+                if node.action == 'switch':
+                    if not node.switched:
+                        continue
+                    result[index].pop()
+                    temp.pop()
+                result, temp = get_output(result, temp, index, station, node)
             self.output.append(temp.copy())
-            print('\t* Path {}:'.format(index + 1))
-            print('|'.join(result[index]))
+            display_output(result, index)
 
     def print_trains(self):
         print('___Turn {}___'.format(self.num_turns))

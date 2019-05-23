@@ -6,6 +6,13 @@ from moving import MovingTrains
 
 
 def get_arguments():
+    """
+    Get and parse arguments from terminal.
+    @return: namespace of arguments include:
+             - data file name
+             - algorithm type
+             - visualization
+    """
     parser = ArgumentParser(prog='Metro Network',
                             usage='[filename] --algo [ALGO] --gui')
     parser.add_argument('filename', help='A metro stations file')
@@ -19,6 +26,12 @@ def get_arguments():
 
 
 def read_data_file(filename):
+    """
+    Read information from data file.
+    Save each line to a list.
+    @param filename: metro stations file
+    @return: list of each line in metro stations file
+    """
     try:
         with open(filename, 'r') as file:
             return file.readlines()
@@ -28,6 +41,7 @@ def read_data_file(filename):
 
 
 def main():
+    """Run main program."""
     args = get_arguments()
     delhi_metro = MovingTrains(read_data_file(args.filename), args.algo)
     if args.gui:
