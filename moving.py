@@ -53,7 +53,10 @@ class MovingTrains(BreadthFirstSearch):
         for index, path in enumerate(self.paths[:2]):
             temp = []
             for node in path:
-                if node.action == 'switch':
+                if node.action == 'switch' and node.switched:
+                    temp.pop()
+                    temp.append([node.line_name, node.station_id])
+                elif node.action == 'switch':
                     continue
                 station = self.get_station(node.line_name, node.station_id)
                 if not len(station.trains):
