@@ -69,14 +69,13 @@ class Graph:
         line_name = None
         for row in input_data:
             row = row.strip()
+            sep_pos = row.find(':')
             if row.startswith('#'):
                 line_name = self.create_line(row[1:])
             elif row.startswith('START'):
-                sep_pos = row.find(':')
                 self.start = self.setup_start_end_point(
                     row[6:sep_pos], int(row[sep_pos + 1:]))
             elif row.startswith('END'):
-                sep_pos = row.find(':')
                 self.end = self.setup_start_end_point(
                     row[4:sep_pos], int(row[sep_pos + 1:]))
             elif row.startswith('TRAINS'):
