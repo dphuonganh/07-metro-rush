@@ -64,7 +64,7 @@ class MovingTrains(BreadthFirstSearch):
     def print_each_path(self):
         result = [[] for _ in range(self.algo + 1)]
         sett = []
-        for index, path in enumerate(self.paths[:2]):
+        for index, path in enumerate(self.paths[:self.algo + 1]):
             temp = []
             for node in path:
                 station = self.get_station(node.line_name, node.station_id)
