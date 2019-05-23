@@ -76,8 +76,8 @@ def hit(take, list_station):
     for obj in list_station:
         posx = obj.posx - obj.width // 2
         posy = obj.posy - obj.height // 2
-        if posx < take[0] and posx + obj.width > take[0]\
-            and obj.height + posy > take[1] and obj.height < take[1]:
+        if posx < take[0] and posx + obj.width > take[0] \
+                and obj.height + posy > take[1] and obj.height < take[1]:
             return obj.name
     return False
 
@@ -134,8 +134,8 @@ class Window(pyglet.window.Window):
         # declare text
         self.name_station = pyglet.text.Label(start.name, font_size=30,
                                               x=1300, y=750)
-        self.turn = pyglet.text.Label('1', font_size=30, x=25, y=750)
-        self.total_turn = pyglet.text.Label('/' + str(len(self.list_move)),
+        self.turn = pyglet.text.Label('0', font_size=30, x=25, y=750)
+        self.total_turn = pyglet.text.Label('/' + str(len(self.list_move)-1),
                                             font_size=30, x=70, y=750)
 
     def on_draw(self):
@@ -183,8 +183,7 @@ class Window(pyglet.window.Window):
             self.current_turn -= 1
         if symbol == key.RIGHT and self.current_turn < len(self.list_move) - 1:
             self.current_turn += 1
-        self.turn.text = str(self.current_turn + 1)
-
+        self.turn.text = str(self.current_turn)
 
     def on_mouse_press(self, x, y, button, modifier):
         if button == mouse.LEFT:
