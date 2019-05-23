@@ -1,5 +1,6 @@
 import pyglet
 from pyglet.window import mouse
+from pyglet.window import key
 
 
 def Init(Metro):
@@ -17,6 +18,7 @@ def Init(Metro):
                 temp.append(Object(index * 40, point * 100, 'swi.png'))
             else:
                 temp.append(Object(index * 40, point * 100, 'sta.jpg'))
+            temp[-1].name = station.name
         point += 1
         output[key.split()[0]] = temp
 
@@ -44,6 +46,8 @@ class Object:
         self.sprite = self.Sprite(img)
         self.sprite.x = self.posx
         self.sprite.y = self.posy
+        self.width = self.sprite.width
+        self.height = self.sprite.height
 
     def draw(self):
         self.sprite.draw()
@@ -70,12 +74,16 @@ class Window(pyglet.window.Window):
             'Magenta': [255, 0, 255]
         }
         self.list_move = graph.output
+        self.current_turn = 0
+        
         start = self.graph[graph.start[0].split()[0]][graph.start[1] - 1]
         end = self.graph[graph.end[0].split()[0]][graph.end[1] - 1]
         self.start = Object(start.posx, start.posy, 'cir.png')
         self.end = Object(end.posx, end.posy, 'cir.png')
-
-        self.current_turn = 0
+        
+        self.name_station = pyglet.text.Label(start.name, font_size=30, x=1300, y=750)
+        self.turn = pyglet.text.Label('1', font_size=30, x=25, y=750)
+        self.total_turn = pyglet.text.Label('/' + str(len(self.list_move)), font_size=30, x=70, y=750)
 
     def on_draw(self):
         self.clear()
@@ -109,14 +117,36 @@ class Window(pyglet.window.Window):
 
         self.start.draw()
         self.end.draw()
+        
+        self.name_station.draw()
+        self.turn.draw()
+        self.total_turn.draw()
 
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.LEFT and self.current_turn > 0:
+            self.current_turn -= 1
+        if symbol == key.RIGHT and self.current_turn < len(self.list_move) - 1:
+            self.current_turn += 1
+        self.turn.text = str(self.current_turn + 1)
+    
+    def hit(self, take, list_station):
+        for obj in list_station:
+            posx = obj.posx - obj.width // 2
+            posy = obj.posy - obj.height // 2
+            if posx < take[0] and posx + obj.width > take[0]\
+                and obj.height + posy > take[1] and obj.height < take[1]:
+                return obj.name
+        return False
+    
     def on_mouse_press(self, x, y, button, modifier):
         if button == mouse.LEFT:
-            self.current_turn += 1
-        if button == mouse.RIGHT:
-            self.current_turn -= 1
+            for line in self.graph.values():
+                temporary = self.hit([x, y], line)
+                if temporary:
+                    self.name_station.text = temporary
+                    return
 
 
 def GUI(Graph):
-    window = Window(Graph, 1280, 720, 'Visualzation')
+    Window(Graph, 1920, 800, 'Visualzation')
     pyglet.app.run()
