@@ -42,6 +42,7 @@ class Graph:
         if station_name not in self.stations:
             self.stations[station_name] = Station(station_name, line_name)
         else:
+            self.stations[station_name].add_line(line_name)
             self.stations[station_name].add_line(another_line_name)
         if another_line_name:
             self.stations[station_name].add_line(another_line_name)
