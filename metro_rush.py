@@ -60,4 +60,8 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as error:
+<<<<<<< HEAD
         print(error)
+=======
+        print(error)
+>>>>>>> 83af4d7f1aa9d12a582ec74b78003af0d7da5232
