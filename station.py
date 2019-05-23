@@ -3,13 +3,13 @@ class Station:
     Represent a station in the metro network.
     Attributes:
         - name: station name
-        - lines: set of line containing station
+        - lines: set of lines containing station
         - capacity: capacity of station
         - trains: list of trains in station
     """
     def __init__(self, station_name, line_name, capacity=1):
         """
-        Initialize attributes of the Station class.
+        Initialize attributes of Station class.
         @param station_name: station name
         @param line_name: line name containing station
         @param capacity: capacity of station
@@ -21,7 +21,7 @@ class Station:
 
     def add_line(self, line_name):
         """
-        Add a new line to the set of line containing station.
+        Add a new line to the set of lines containing station.
         @param line_name: line name containing station
         """
         self.lines.add(line_name)
@@ -29,7 +29,7 @@ class Station:
     def push_train(self, train_label):
         """
         Add train to station.
-        @param train_label:
+        @param train_label: train label
         @return: boolean - True: success adding
                          - False: failed adding
         """
